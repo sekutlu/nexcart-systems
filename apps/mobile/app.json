@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "NexCart Mobile",
+    "slug": "nexcart-mobile",
+    "scheme": "nexcart",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light"
+  }
+}

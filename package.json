@@ -1,0 +1,21 @@
+{
+  "name": "nexcart-systems",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @nexcart/web",
+    "dev:web": "npm run dev -w @nexcart/web",
+    "dev:mobile": "npm run start -w @nexcart/mobile",
+    "build": "npm run build -w @nexcart/web",
+    "lint": "npm run lint -w @nexcart/web",
+    "db:generate": "npm run db:generate -w @nexcart/web",
+    "db:migrate": "npm run db:migrate -w @nexcart/web",
+    "db:studio": "npm run db:studio -w @nexcart/web"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
