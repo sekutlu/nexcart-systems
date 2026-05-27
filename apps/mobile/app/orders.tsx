@@ -6,6 +6,7 @@ import {
 } from "react-native";
 import { Package, CheckCircle2, Clock, Truck, CreditCard, XCircle, ChevronDown, ChevronUp } from "lucide-react-native";
 import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 
 type OrderItem = { id: string; quantity: number; price: number; product: { name: string } };
 type Order     = { id: string; status: string; total: number; createdAt: string; items: OrderItem[] };
@@ -124,6 +125,7 @@ export default function OrdersScreen() {
   }, [user?.token]);
 
   useEffect(() => { load(); }, [load]);
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
   if (!user) {
     return (

@@ -13,6 +13,13 @@ type OrderItem = {
   quantity: number;
   price: number;
   product: { name: string; imageUrl: string | null };
+  service?: {
+    type: "HOSTING_SERVICE";
+    status: string;
+    accountId: string;
+    activatedAt: string;
+    renewalAt: string;
+  } | null;
 };
 
 type Order = {
@@ -117,6 +124,11 @@ function OrderCard({ order }: { order: Order }) {
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 14 }}>{item.product.name}</div>
                     <div style={{ color: "var(--muted)", fontSize: 12 }}>Qty: {item.quantity} × M {item.price.toLocaleString()}</div>
+                    {item.service && (
+                      <div style={{ color: "var(--teal)", fontSize: 12, fontWeight: 600 }}>
+                        Hosting active · Renewal {new Date(item.service.renewalAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <span style={{ fontWeight: 700 }}>M {(item.price * item.quantity).toLocaleString()}</span>

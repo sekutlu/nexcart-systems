@@ -127,7 +127,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <Text style={styles.hint}>
-              Demo: <Text style={{ color: ACCENT, fontWeight: "700" }}>admin@datamak.co.ls</Text> / <Text style={{ color: ACCENT, fontWeight: "700" }}>admin123</Text>
+              Demo admin: <Text style={{ color: ACCENT, fontWeight: "700" }}>admin@nexcart.com</Text> / <Text style={{ color: ACCENT, fontWeight: "700" }}>Admin@12345</Text>
             </Text>
           </View>
         </ScrollView>

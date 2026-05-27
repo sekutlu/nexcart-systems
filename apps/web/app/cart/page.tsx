@@ -19,6 +19,8 @@ type CartItem = {
   };
 };
 
+const HOSTING_CATEGORY = "Web Hosting";
+
 function ItemImage({ src, alt }: { src: string | null; alt: string }) {
   const [failed, setFailed] = useState(false);
   if (!src || failed) return <Package size={32} strokeWidth={1.2} style={{ color: "var(--accent)", opacity: 0.4 }} />;
@@ -130,6 +132,7 @@ export default function CartPage() {
             {items.map(item => {
               const busy = updating === item.productId;
               const lineTotal = item.product.price * item.quantity;
+              const isHosting = item.product.category === HOSTING_CATEGORY;
               return (
                 <div key={item.id} className="panel" style={{ display: "flex", gap: 16, alignItems: "center", padding: "16px 20px", opacity: busy ? 0.6 : 1, transition: "opacity 0.2s" }}>
                   {/* Image */}
@@ -159,7 +162,7 @@ export default function CartPage() {
                     <span style={{ fontWeight: 700, fontSize: 15, minWidth: 24, textAlign: "center" }}>{item.quantity}</span>
                     <button
                       onClick={() => updateQty(item.productId, item.quantity + 1)}
-                      disabled={busy || item.quantity >= item.product.stock}
+                      disabled={busy || (!isHosting && item.quantity >= item.product.stock)}
                       className="btn-icon"
                       style={{ height: 32, width: 32 }}
                     >

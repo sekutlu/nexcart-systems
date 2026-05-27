@@ -2,6 +2,23 @@ import { NextRequest } from "next/server";
 import { jsonError, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const HOSTING_CATEGORY = "Web Hosting";
+
+function serviceDetailsFor(item: any, createdAt: string) {
+  const isHosting = item?.product?.category === HOSTING_CATEGORY;
+  if (!isHosting) return null;
+  const activatedAt = new Date(createdAt);
+  const renewalAt = new Date(activatedAt);
+  renewalAt.setMonth(renewalAt.getMonth() + 1);
+  return {
+    type: "HOSTING_SERVICE",
+    status: "ACTIVE",
+    accountId: `svc-${item.id}`,
+    activatedAt: activatedAt.toISOString(),
+    renewalAt: renewalAt.toISOString(),
+  };
+}
+
 // Demo orders returned when DB is unavailable
 const DEMO_ORDERS = [
   {
@@ -37,6 +54,7 @@ export async function GET(request: NextRequest) {
             ...i,
             price: Number(i.price),
             product: { ...i.product, price: Number(i.product.price) },
+            service: serviceDetailsFor(i, o.createdAt),
           })),
         }))
       );
@@ -74,7 +92,7 @@ export async function POST(request: NextRequest) {
             items: {
               create: cartItems.map((item: any) => ({
                 productId: item.productId,
-                quantity: item.quantity,
+                quantity: item.product.category === HOSTING_CATEGORY ? 1 : item.quantity,
                 price: Number(item.product.price),
               })),
             },
@@ -93,6 +111,7 @@ export async function POST(request: NextRequest) {
             ...i,
             price: Number(i.price),
             product: { ...i.product, price: Number(i.product.price) },
+            service: serviceDetailsFor(i, order.createdAt),
           })),
         },
         { status: 201 }

@@ -15,6 +15,7 @@ type Product = {
 };
 
 const CATEGORIES = ["All", "Computers", "Networking", "ICT Products", "Web Hosting", "Accessories"];
+const HOSTING_CATEGORY = "Web Hosting";
 const PRICE_RANGES = [
   { label: "Any price",    min: 0,     max: 0      },
   { label: "Under M 1k",  min: 0,     max: 1000   },
@@ -213,8 +214,9 @@ export function ProductList() {
           {products.map(product => {
             const inCart     = cart.includes(product.id);
             const inWishlist = wishlist.includes(product.id);
-            const lowStock   = product.stock > 0 && product.stock <= 5;
-            const outOfStock = product.stock === 0;
+            const isHosting  = product.category === HOSTING_CATEGORY;
+            const lowStock   = !isHosting && product.stock > 0 && product.stock <= 5;
+            const outOfStock = !isHosting && product.stock === 0;
 
             return (
               <article className="product-card" key={product.id}>
@@ -230,9 +232,14 @@ export function ProductList() {
                   <div className="product-desc">{product.description}</div>
                   <div className="product-price-row" style={{ marginTop: "auto" }}>
                     <span className="product-price">M {product.price.toLocaleString()}</span>
-                    {product.stock > 0 && (
+                    {!isHosting && product.stock > 0 && (
                       <span style={{ marginLeft: "auto", color: "var(--teal)", fontSize: 12, fontWeight: 600 }}>
                         {product.stock} in stock
+                      </span>
+                    )}
+                    {isHosting && (
+                      <span style={{ marginLeft: "auto", color: "var(--teal)", fontSize: 12, fontWeight: 700 }}>
+                        Instant activation
                       </span>
                     )}
                   </div>

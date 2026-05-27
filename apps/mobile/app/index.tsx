@@ -1,10 +1,12 @@
 import { API_URL, useAuth } from "../src/context/AuthContext";
+import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator, FlatList, SafeAreaView, ScrollView,
+  ActivityIndicator, FlatList, Image, SafeAreaView, ScrollView,
   StyleSheet, Text, TextInput, TouchableOpacity, View, RefreshControl,
 } from "react-native";
 import { ShoppingCart, Search, Check, Package } from "lucide-react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 type Product = {
   id: string; name: string; description: string;
@@ -12,6 +14,13 @@ type Product = {
 };
 
 const CATEGORIES = ["All", "Computers", "Networking", "ICT Products", "Web Hosting", "Accessories"];
+const PRICE_RANGES = [
+  { label: "Any", min: 0, max: 0 },
+  { label: "Under M1k", min: 0, max: 1000 },
+  { label: "M1k-5k", min: 1000, max: 5000 },
+  { label: "M5k-20k", min: 5000, max: 20000 },
+  { label: "M20k+", min: 20000, max: 0 },
+];
 const ACCENT = "#c11d17";
 const TEAL   = "#007c89";
 
@@ -22,13 +31,28 @@ export default function ProductsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch]         = useState("");
   const [category, setCategory]     = useState("All");
+  const [priceRange, setPriceRange] = useState(0);
   const [cart, setCart]             = useState<string[]>([]);
   const [adding, setAdding]         = useState<string | null>(null);
 
-  const load = useCallback(async (q = search, cat = category) => {
+  const loadCart = useCallback(async () => {
+    if (!user?.token) { setCart([]); return; }
+    try {
+      const res = await fetch(`${API_URL}/cart`, { headers: { Authorization: `Bearer ${user.token}` } });
+      const data = await res.json();
+      setCart(Array.isArray(data) ? data.map((item) => item.productId) : []);
+    } catch {
+      setCart([]);
+    }
+  }, [user?.token]);
+
+  const load = useCallback(async (q = search, cat = category, rangeIndex = priceRange) => {
     const params = new URLSearchParams();
     if (q)              params.set("search",   q);
     if (cat !== "All")  params.set("category", cat);
+    const range = PRICE_RANGES[rangeIndex];
+    if (range.min > 0) params.set("minPrice", String(range.min));
+    if (range.max > 0) params.set("maxPrice", String(range.max));
     try {
       const res  = await fetch(`${API_URL}/products?${params}`);
       const data = await res.json();
@@ -39,34 +63,43 @@ export default function ProductsScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [search, category]);
+  }, [search, category, priceRange]);
 
   useEffect(() => { load(); }, []);
+  useFocusEffect(useCallback(() => { loadCart(); }, [loadCart]));
 
   const handleSearch = (text: string) => {
     setSearch(text);
-    load(text, category);
+    load(text, category, priceRange);
   };
 
   const handleCategory = (cat: string) => {
     setCategory(cat);
-    load(search, cat);
+    load(search, cat, priceRange);
+  };
+
+  const handlePriceRange = (index: number) => {
+    setPriceRange(index);
+    load(search, category, index);
   };
 
   const addToCart = async (product: Product) => {
     if (cart.includes(product.id) || adding) return;
-    setAdding(product.id);
-    if (user?.token) {
-      try {
-        await fetch(`${API_URL}/cart`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
-          body: JSON.stringify({ productId: product.id, quantity: 1, name: product.name, price: product.price, stock: product.stock }),
-        });
-      } catch {}
+    if (!user?.token) {
+      router.push("/login");
+      return;
     }
-    setCart(prev => [...prev, product.id]);
-    setAdding(null);
+    setAdding(product.id);
+    try {
+      const res = await fetch(`${API_URL}/cart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+        body: JSON.stringify({ productId: product.id, quantity: 1, name: product.name, price: product.price, stock: product.stock }),
+      });
+      if (res.ok) setCart(prev => [...prev, product.id]);
+    } finally {
+      setAdding(null);
+    }
   };
 
   const renderProduct = ({ item }: { item: Product }) => {
@@ -75,7 +108,11 @@ export default function ProductsScreen() {
     return (
       <View style={styles.card}>
         <View style={styles.cardImg}>
-          <Package size={40} color={ACCENT} strokeWidth={1.2} />
+          {item.imageUrl ? (
+            <Image source={{ uri: item.imageUrl }} style={styles.productImage} resizeMode="contain" />
+          ) : (
+            <Package size={40} color={ACCENT} strokeWidth={1.2} />
+          )}
           {item.stock <= 5 && item.stock > 0 && (
             <View style={[styles.badge, { backgroundColor: "#f59e0b" }]}>
               <Text style={styles.badgeText}>Low Stock</Text>
@@ -138,6 +175,19 @@ export default function ProductsScreen() {
         ))}
       </ScrollView>
 
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillRow} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
+        {PRICE_RANGES.map((range, index) => (
+          <TouchableOpacity
+            key={range.label}
+            style={[styles.pill, priceRange === index && styles.pillActive]}
+            onPress={() => handlePriceRange(index)}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.pillText, priceRange === index && styles.pillTextActive]}>{range.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
       {loading ? (
         <View style={styles.center}><ActivityIndicator size="large" color={ACCENT} /></View>
       ) : products.length === 0 ? (
@@ -151,7 +201,7 @@ export default function ProductsScreen() {
           keyExtractor={i => i.id}
           renderItem={renderProduct}
           contentContainerStyle={{ padding: 16, gap: 12 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor={ACCENT} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); loadCart(); }} tintColor={ACCENT} />}
           showsVerticalScrollIndicator={false}
         />
       )}
@@ -172,6 +222,7 @@ const styles = StyleSheet.create({
   emptyText:       { color: "#9ca3af", fontSize: 16, fontWeight: "600" },
   card:            { backgroundColor: "#fff", borderRadius: 12, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
   cardImg:         { alignItems: "center", backgroundColor: "#f9fafb", height: 130, justifyContent: "center", position: "relative" },
+  productImage:    { height: "100%", width: "100%" },
   badge:           { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, position: "absolute", top: 10, left: 10 },
   badgeText:       { color: "#fff", fontSize: 10, fontWeight: "700", textTransform: "uppercase" },
   cardBody:        { padding: 14, gap: 4 },

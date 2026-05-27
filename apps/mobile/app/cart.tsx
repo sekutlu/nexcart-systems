@@ -6,6 +6,7 @@ import {
 } from "react-native";
 import { ShoppingCart, Minus, Plus, Trash2, ArrowRight, Package } from "lucide-react-native";
 import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 
 type CartItem = {
   id: string; productId: string; quantity: number;
@@ -34,6 +35,7 @@ export default function CartScreen() {
   }, [user?.token]);
 
   useEffect(() => { load(); }, [load]);
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const updateQty = async (productId: string, quantity: number) => {
     if (quantity < 1) return;
