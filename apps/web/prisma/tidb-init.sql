@@ -1,0 +1,102 @@
+-- TiDB / MySQL schema for Datamak NexCart
+-- Run this in TiDB Client. Change the database name if you prefer another one.
+
+CREATE DATABASE IF NOT EXISTS `nexcart_systems`
+  DEFAULT CHARACTER SET utf8mb4
+  DEFAULT COLLATE utf8mb4_unicode_ci;
+
+USE `nexcart_systems`;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS `OrderItem`;
+DROP TABLE IF EXISTS `CartItem`;
+DROP TABLE IF EXISTS `Order`;
+DROP TABLE IF EXISTS `Product`;
+DROP TABLE IF EXISTS `User`;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+CREATE TABLE `User` (
+  `id` VARCHAR(191) NOT NULL,
+  `name` VARCHAR(191) NOT NULL,
+  `email` VARCHAR(191) NOT NULL,
+  `password` VARCHAR(191) NOT NULL,
+  `role` ENUM('CUSTOMER', 'ADMIN', 'DELIVERY_STAFF', 'SUPER_ADMIN') NOT NULL DEFAULT 'CUSTOMER',
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+
+  UNIQUE INDEX `User_email_key` (`email`),
+  PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `Product` (
+  `id` VARCHAR(191) NOT NULL,
+  `name` VARCHAR(191) NOT NULL,
+  `description` TEXT NOT NULL,
+  `price` DECIMAL(10, 2) NOT NULL,
+  `imageUrl` VARCHAR(191) NULL,
+  `category` VARCHAR(191) NOT NULL DEFAULT '',
+  `stock` INTEGER NOT NULL DEFAULT 0,
+  `isActive` BOOLEAN NOT NULL DEFAULT TRUE,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+
+  PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `CartItem` (
+  `id` VARCHAR(191) NOT NULL,
+  `userId` VARCHAR(191) NOT NULL,
+  `productId` VARCHAR(191) NOT NULL,
+  `quantity` INTEGER NOT NULL DEFAULT 1,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+
+  UNIQUE INDEX `CartItem_userId_productId_key` (`userId`, `productId`),
+  INDEX `CartItem_userId_idx` (`userId`),
+  INDEX `CartItem_productId_idx` (`productId`),
+  PRIMARY KEY (`id`),
+
+  CONSTRAINT `CartItem_userId_fkey`
+    FOREIGN KEY (`userId`) REFERENCES `User` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `CartItem_productId_fkey`
+    FOREIGN KEY (`productId`) REFERENCES `Product` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `Order` (
+  `id` VARCHAR(191) NOT NULL,
+  `userId` VARCHAR(191) NOT NULL,
+  `status` ENUM('PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
+  `total` DECIMAL(10, 2) NOT NULL,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+
+  INDEX `Order_userId_idx` (`userId`),
+  PRIMARY KEY (`id`),
+
+  CONSTRAINT `Order_userId_fkey`
+    FOREIGN KEY (`userId`) REFERENCES `User` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `OrderItem` (
+  `id` VARCHAR(191) NOT NULL,
+  `orderId` VARCHAR(191) NOT NULL,
+  `productId` VARCHAR(191) NOT NULL,
+  `quantity` INTEGER NOT NULL,
+  `price` DECIMAL(10, 2) NOT NULL,
+
+  INDEX `OrderItem_orderId_idx` (`orderId`),
+  INDEX `OrderItem_productId_idx` (`productId`),
+  PRIMARY KEY (`id`),
+
+  CONSTRAINT `OrderItem_orderId_fkey`
+    FOREIGN KEY (`orderId`) REFERENCES `Order` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `OrderItem_productId_fkey`
+    FOREIGN KEY (`productId`) REFERENCES `Product` (`id`)
+    ON DELETE RESTRICT ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
