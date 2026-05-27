@@ -1,17 +1,21 @@
 import { NextRequest } from "next/server";
-import { jsonError, requireAdmin } from "@/lib/auth";
+import { jsonError, requireDelivery } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const VALID_STATUSES = ["PENDING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"];
+const DELIVERY_STATUSES = ["SHIPPED", "DELIVERED"];
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireAdmin(request);
+    const user = await requireDelivery(request);
     const { id } = await params;
     const { status } = await request.json();
 
     if (!VALID_STATUSES.includes(status)) {
       return Response.json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}` }, { status: 400 });
+    }
+    if (user.role === "DELIVERY_STAFF" && !DELIVERY_STATUSES.includes(status)) {
+      return Response.json({ error: "Delivery staff can only mark orders as shipped or delivered" }, { status: 403 });
     }
 
     const order = await prisma.order.update({

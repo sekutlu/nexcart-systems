@@ -28,9 +28,8 @@ const ADMIN_NAV = [
 ];
 
 const DELIVERY_NAV = [
-  { href: "/delivery",           label: "Assigned Orders" },
-  { href: "/delivery/status",    label: "Delivery Status" },
-  { href: "/profile",            label: "Profile"         },
+  { href: "/delivery", label: "Delivery Orders" },
+  { href: "/profile",  label: "Profile"         },
 ];
 
 const SUPER_ADMIN_NAV = [
@@ -61,9 +60,8 @@ const ADMIN_TABS = [
 ];
 
 const DELIVERY_TABS = [
-  { href: "/delivery",        label: "Orders",   Icon: Package  },
-  { href: "/delivery/status", label: "Status",   Icon: Truck    },
-  { href: "/profile",         label: "Profile",  Icon: User     },
+  { href: "/delivery", label: "Orders",  Icon: Truck },
+  { href: "/profile",  label: "Profile", Icon: User  },
 ];
 
 const SUPER_ADMIN_TABS = [

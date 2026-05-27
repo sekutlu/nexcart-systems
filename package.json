@@ -9,7 +9,7 @@
     "dev": "npm run dev -w @nexcart/web",
     "dev:web": "npm run dev -w @nexcart/web",
     "dev:mobile": "npm run start -w @nexcart/mobile",
-    "build": "npm run build -w @nexcart/web",
+    "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint -w @nexcart/web",
     "db:generate": "npm run db:generate -w @nexcart/web",
     "db:migrate": "npm run db:migrate -w @nexcart/web",

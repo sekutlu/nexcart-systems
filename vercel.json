@@ -1,12 +1,6 @@
 {
-  "buildCommand": "npm run build -w @nexcart/web",
+  "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "outputDirectory": "apps/web/.next",
-  "rootDirectory": ".",
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "JWT_SECRET": "@jwt_secret",
-    "NEXT_PUBLIC_API_URL": "@next_public_api_url"
-  }
+  "ignoreCommands": ["git diff --quiet HEAD^ HEAD ."]
 }
