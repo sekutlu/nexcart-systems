@@ -16,7 +16,6 @@
     "seed": "npm run db:seed"
   },
   "dependencies": {
-    "@nexcart/shared": "*",
     "@prisma/client": "^5.14.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
