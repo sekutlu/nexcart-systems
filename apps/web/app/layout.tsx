@@ -1,26 +1,21 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./globals.css";
+import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
-  title: "NexCart Systems",
-  description: "Simple e-commerce foundation"
+  title: "Datamak NexCart",
+  description: "E-commerce prototype for Software Testing and Reliability",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body>
-        <header className="topbar">
-          <Link href="/" className="brand">NexCart</Link>
-          <nav>
-            <Link href="/products">Products</Link>
-            <Link href="/cart">Cart</Link>
-            <Link href="/orders">Orders</Link>
-            <Link href="/admin/products">Admin</Link>
-          </nav>
-        </header>
-        <main>{children}</main>
+        <NavBar />
+        <main style={{ padding: 0, maxWidth: '100%' }}>{children}</main>
       </body>
     </html>
   );

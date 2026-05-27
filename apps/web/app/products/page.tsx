@@ -2,12 +2,14 @@ import { ProductList } from "@/components/ProductList";
 
 export default function ProductsPage() {
   return (
-    <section className="stack">
-      <div>
-        <h1>Products</h1>
-        <p className="muted">Public catalog backed by the shared REST API.</p>
+    <div className="page-wrap">
+      <div className="stack-sm">
+        <div className="page-header">
+          <h1>Shop — Datamak Technologies</h1>
+          <p>Computers, ICT products, networking gear &amp; web hosting services.</p>
+        </div>
+        <ProductList />
       </div>
-      <ProductList />
-    </section>
+    </div>
   );
 }

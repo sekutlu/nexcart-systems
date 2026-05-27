@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await requireAdmin(request);
-    const { name, description, price, imageUrl, stock } = await request.json();
+    const { name, description, price, imageUrl, stock, category } = await request.json();
 
     if (!name || !description || price === undefined) {
       return Response.json({ error: "Name, description, and price are required" }, { status: 400 });
@@ -26,9 +26,10 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         description,
-        price,
-        imageUrl,
-        stock: Number(stock ?? 0)
+        price: Number(price),
+        imageUrl: imageUrl ?? null,
+        stock: Number(stock ?? 0),
+        category: category ?? "",
       }
     });
 

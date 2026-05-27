@@ -1,10 +1,29 @@
 {
   "expo": {
-    "name": "NexCart Mobile",
+    "name": "Datamak NexCart",
     "slug": "nexcart-mobile",
     "scheme": "nexcart",
-    "version": "0.1.0",
+    "version": "1.0.0",
+    "sdkVersion": "52.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light"
+    "userInterfaceStyle": "light",
+    "android": {
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ],
+      "package": "co.ls.datamak.nexcart"
+    },
+    "ios": {
+      "bundleIdentifier": "co.ls.datamak.nexcart",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

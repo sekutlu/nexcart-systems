@@ -1,9 +1,10 @@
-import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/serializers";
+import { prisma } from "@/lib/prisma";
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const product = await prisma.product.findFirst({
-    where: { id: params.id, isActive: true }
+    where: { id, isActive: true }
   });
 
   if (!product) {

@@ -10,12 +10,15 @@ datasource db {
 enum Role {
   CUSTOMER
   ADMIN
+  DELIVERY_STAFF
+  SUPER_ADMIN
 }
 
 enum OrderStatus {
   PENDING
   PAID
   SHIPPED
+  DELIVERED
   CANCELLED
 }
 
@@ -37,6 +40,7 @@ model Product {
   description String      @db.Text
   price       Decimal     @db.Decimal(10, 2)
   imageUrl    String?
+  category    String      @default("")
   stock       Int         @default(0)
   isActive    Boolean     @default(true)
   cartItems   CartItem[]

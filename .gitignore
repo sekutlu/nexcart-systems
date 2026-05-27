@@ -1,8 +1,30 @@
-node_modules
-.next
-.expo
-dist
-build
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Environment files — NEVER commit these
 .env
 .env.local
-*.log
+.env.production
+.env.development
+
+# Prisma
+apps/web/prisma/migrations/
+
+# Expo
+apps/mobile/.expo/
+apps/mobile/android/
+apps/mobile/ios/
+
+# Misc
+.DS_Store
+*.pem
+.vercel
+*.tsbuildinfo

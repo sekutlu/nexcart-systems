@@ -24,9 +24,10 @@ export type CartItem = {
 
 export type Order = {
   id: string;
-  status: "PENDING" | "PAID" | "SHIPPED" | "CANCELLED";
+  status: "PENDING" | "PAID" | "SHIPPED" | "DELIVERED" | "CANCELLED";
   total: number;
   createdAt: string;
+  items?: { id: string; quantity: number; price: number; product: { name: string; imageUrl?: string | null } }[];
 };
 
 type RequestOptions = {
